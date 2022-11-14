@@ -5,23 +5,30 @@
   <title>SMART FARM DASHBOARD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="style.css">
-
   <link rel="stylesheet" href="bootstrap.min.css">
   <script src="gauge.min.js"></script>
 </head>
 
-<body>
-  <nav class="navbar navbar-expand-lg ">
+<body class="body-lahan1">
+  <nav class="navbar nav-top bg-light">
+    <div class="container">
+      <div class="navbar-brand">
+        <img src="ug.png" width="100" height="100" alt="No Image Found!" class="no-space">
+        <img src="kampusmerdeka.png" width="100" height="100" alt="No Image Found!" class="space">
+        <img src="kampusmerdekaa.png" width="100" height="100" alt="No Image Found!" class=" space">
+        <img src="ppunew.png" width="100" height="100" alt="No Image Found!" class="space">
+        <img src="diktii.png" width="100" height="100" alt="No Image Found!" class="space">
+      </div>
+    </div>
+  </nav>
+  <nav class="navbar navbar-expand-lg">
     <div class="container">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
         aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <a class="navbar-brand " href="#">
-        <p class="judul-brand">Smart System</p>
-      </a>
       <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 judul">
+        <ul class="nav">
           <li class="nav-item ">
             <a class="nav-link active" aria-current="page" href="index.html">
               <p class="lahan"> Lahan 1</p>
@@ -42,41 +49,31 @@
               <p class="lahan"> Lahan 4</p>
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="info.html">
+              <p class="lahan">INFO</p>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- end -->
-  <nav class="navbar nav-top bg-light">
-    <div class="container">
-      <div class="navbar-brand">
-        <img src="ug.png" width="100" height="100" alt="" class="">
-        <img src="kampusmerdeka.png" width="100" height="100" alt="" class="space">
-        <img src="kampusmerdekaa.png" width="100" height="100" alt="" class=" space">
-        <img src="ppunew.png" width="100" height="100" alt="" class="space">
-        <img src="diktii.png" width="100" height="100" alt="" class="space trans">
-      </div>
-    </div>
-  </nav>
-
-  <!-- nav 2 -->
-
-  <!-- end -->
 
   <div class="container-fluid">
     <br>
-    <p class="judul-proyek text-center">Sistem Cerdas Irigasi Tanaman Tomat</p>
+    <p class="judul-proyek text-center">Aplikasi Web Sistem Monitoring Lahan Pertanian Penajam Paser Utara</p>
+
     <div class="row">
       <div class="col">
         <div class="card">
-          <p class="card-title">Natrium</p>
+          <p class="card-title">Nitrogen</p>
           <canvas id="natriumLahan1"></canvas>
         </div>
       </div>
       <div class="col">
         <div class="card">
-          <p class="card-title">Posfor</p>
+          <p class="card-title">Phosphat</p>
           <canvas id="potasiumLahan1"></canvas>
         </div>
       </div>
@@ -91,6 +88,7 @@
         <div class="card">
           <p class="card-title">Kelembaban</p>
           <canvas id="KelembabanLahan1"></canvas>
+          <input type="text" id="kelembaban" readonly>
         </div>
       </div>
 
@@ -98,29 +96,26 @@
         <div class="card">
           <p class="card-title">pH</p>
           <canvas id="phLahan1"></canvas>
+          <input type="text" id="pH" readonly>
         </div>
       </div>
-
     </div>
-
-    <!-- <div class="content">
-    <div class="card-grid-1">
-      <div class="card">
-        <p class="card-title">Kelembapan Tanah Area A</p>
-        <canvas id="gauge-moisture-A"></canvas>
-      </div>
-    </div>
-    <div class="card-grid-2">
-      <div class="card">
-        <p class="card-title">Kelembapan Tanah Area A</p>
-        <canvas id="gauge-moisture-B"></canvas>
-      </div>
-    </div>
-  </div> -->
     <br>
+
+    <!-- ================= CAUTION =============== -->
+    <!-- THIS IS EXPERIMENTAL FEATURE!, CHECK THIS SCRIPT IF FIND SOME PROBLEM OR ERROR
+    <div class="container">
+      <h1>ESP32 Web Server</h1>
+      <p>GPIO state: <strong> %STATE%</strong></p>
+      <p><a href="/on"><button class="btn btn-info">ON</button></a></p>
+      <p><a href="/off"><button class="btn btn-danger">OFF</button></a></p>
+    </div> -->
+
+
     <footer>
       <div class="foot">
-        <h6 class="foot-text">Develop By &copy; Riset Gundar</h6>
+        <h6 class="foot-text">Copyright &copy; <a href="https://ps-citra.gunadarma.ac.id" style="text-decoration:none">
+            Research Team of Multimedia dan Robotics</a> </h6>
       </div>
     </footer>
     <script src="script.js"></script>

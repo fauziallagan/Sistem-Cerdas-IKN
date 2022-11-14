@@ -16,18 +16,21 @@
   * VCC = 5V
   * GND = GND
   * (Through Logic-Level Converter)
-  * DI (HRX CH1) = TX (LTX CH1)
-  * DE (HRX CH2) = 32 (LRX CH2)
-  * RE (HTX CH2) = 33 (LTX CH2)
-  * RO (HTX CH1) = RX (LRX CH1)
+  * DI (HV4)  = TX (LV4)
+  * DE (HV3)  = 32 (LV3)
+  * RE (HV2)  = 33 (LV2)
+  * RO (HV1)  = RX (LV1)
+  * HV        = 5V
+  * LV        = 3.3V
+  * GND       = GND   
 */
 
 /*
-  * MAX485 to NPK Sensor
-  * VCC = 9 V (Diff)
-  * GND = GND
-  * A = A
-  * B = B
+  * NPK Sensor to MAX485
+  * Brown   = 5-30V (Adaptor/Step-Down)
+  * Black   = GND   (Adaptor/Step-Down)
+  * Yellow  = A
+  * Blue    = B
 */
 
 #include <SPI.h>
@@ -45,10 +48,10 @@
 #define RST   14
 #define DIO0  26
 
-#define OLED_SDA 21
-#define OLED_SCL 22
-#define OLED_RST 16
-#define SCREEN_WIDTH 128
+#define OLED_SDA      21
+#define OLED_SCL      22
+#define OLED_RST      16
+#define SCREEN_WIDTH  128
 #define SCREEN_HEIGHT 64 
 
 #define soil        25
@@ -68,12 +71,16 @@ byte values[11];
 int moistAnalog, moistPercent;
 int pHAnalog; float pHValue;
 byte NValue, PValue, KValue;
+byte NPKReading = 1;  
+byte LoRaStatus = 0;
 
-String area = "L4";
+String area     = "L4";
+String areaDesc = "LoRa Lahan 4";
+String areaName = "Lahan 4";
 String msgArea, msgMoist, msgPH, msgNitro, msgPhos, msgKal;
 
-unsigned long readSensorInterval = 2000;
-unsigned long OLEDPrintInterval = 3000;
+unsigned long readSensorInterval = 10000;
+unsigned long OLEDPrintInterval = 5000;
 
 int x, minX;
 char message[] = "29M LstWyPt, 345M StPt, rec#89";
@@ -90,27 +97,46 @@ void setup()
   initLoRa();
   initSensor();
   initOLED();
+
+  delay (3000);
 }
+
 void loop() 
-{
-  int packetSize = LoRa.parsePacket();
-  if (packetSize) 
+{ 
+  if (LoRaStatus == 1) 
   {
-    while (LoRa.available()) 
+    int packetSize = LoRa.parsePacket();
+    if (packetSize) 
     {
-      msgArea = LoRa.readStringUntil ('#');
-      if (msgArea == area)
+      while (LoRa.available()) 
       {
-        onResponse(msgArea, msgMoist, msgPH, msgNitro, msgPhos, msgKal);
+        msgArea = LoRa.readStringUntil ('#');
+        if (msgArea == area)
+        {
+          onResponse(msgArea, msgMoist, msgPH, msgNitro, msgPhos, msgKal);
+        }
       }
     }
   }
-
+  else
+  {
+    //Do Nothing
+  }
+  
   if (readSensorMillis >= readSensorInterval)
   {
+    if (NPKReading == 1)
+    {
+      NPKRead();
+      NPKReading = 0; 
+      LoRaStatus = 1;     
+    }
+    else
+    {
+      //Do Nothing
+    }
     pHRead();
     moistRead();
-    NPKRead();
     readSensorMillis = 0;
   }
 
@@ -137,6 +163,9 @@ void initSensor()
   pinMode (pH, INPUT);
   pinMode (DE_MAX485, OUTPUT);
   pinMode (RE_MAX485, OUTPUT);
+
+  digitalWrite (DE_MAX485, LOW);
+  digitalWrite (RE_MAX485, LOW);  
 }
 
 void initOLED()
@@ -150,10 +179,8 @@ void initOLED()
   display.setTextColor(WHITE);
   display.setTextSize(1);
   display.setCursor(0, 0);
-  display.print("LoRa Lahan 4");
+  display.print(areaDesc);
   display.display();
-  x = display.width();
-  minX = -12 * strlen(message);
 }
 
 void onResponse(String field, String sensor1, String sensor2, String sensor3, String sensor4, String sensor5)
@@ -173,87 +200,140 @@ void onResponse(String field, String sensor1, String sensor2, String sensor3, St
   LoRa.print ("#");
   LoRa.endPacket ();
 }
-
 void pHRead()
 {
   pHAnalog  = analogRead (pH);
-  pHValue   = -(-0.0693 * pHAnalog )+ 7.3855;
+  pHValue   = (0.002888143 * pHAnalog)-0.50;
   msgPH     = String (pHValue);
 }
 
 void moistRead()
 {
   moistAnalog   = analogRead (soil);
-  moistPercent  = map (moistAnalog, 0, 4095, 100, 0);
+  moistPercent  = map (moistAnalog, 1620, 4095, 100, 0);
   msgMoist      = String (moistPercent);
 }
 
 void NPKRead()
 {
   NValue = NRead();
-  delay (200);
+  delay (250);
   PValue = PRead();
-  delay (200);
+  delay (250);
   KValue = KRead();
-  delay (200);
-  msgNitro  = String (NValue);
-  msgPhos   = String (PValue);
-  msgKal    = String (KValue);
+  delay (250);
+  msgNitro  = String (NValue, HEX);
+  msgPhos   = String (PValue, HEX);
+  msgKal    = String (KValue, HEX);
 }
 
 byte NRead()
 {
-  digitalWrite (DE_MAX485, HIGH);
-  digitalWrite (RE_MAX485, HIGH);
-  delay (10);
-  if (Serial.write (nitro, sizeof (nitro)) == 8);
+  // clear the receive buffer
+  Serial.flush();
+
+  // switch RS-485 to transmit mode
+  digitalWrite(DE_MAX485, HIGH);
+  digitalWrite(RE_MAX485, HIGH);
+  delay(10);
+
+  // write out the message
+  for (uint8_t i = 0; i < sizeof(nitro); i++) Serial.write(nitro[i]);
+
+  // wait for the transmission to complete
+  Serial.flush();
+
+  // switching RS485 to receive mode
+  digitalWrite(DE_MAX485, LOW);
+  digitalWrite(RE_MAX485, LOW);
+
+  // delay to allow response bytes to be received!
+  delay(500);
+
+  // read in the received bytes
+  for (byte i = 0; i < 7; i++) 
   {
-    digitalWrite (DE_MAX485, LOW);
-    digitalWrite (RE_MAX485, LOW);
-    for (byte i=0; i<7; i++)
-    {
-      values[i] = Serial.read();
-    }
+    values[i] = Serial.read();
   }
+
   return values[4];
 }
 
 byte PRead()
 {
-  digitalWrite (DE_MAX485, HIGH);
-  digitalWrite (RE_MAX485, HIGH);
-  delay (10);
-  if (Serial.write (phos, sizeof (phos)) == 8);
+  Serial.flush();
+  digitalWrite(DE_MAX485, HIGH);
+  digitalWrite(RE_MAX485, HIGH);
+  delay(10);
+  for (uint8_t i = 0; i < sizeof(phos); i++) Serial.write(phos[i]);
+
+  Serial.flush();
+  digitalWrite(DE_MAX485, LOW);
+  digitalWrite(RE_MAX485, LOW);
+  delay(500);
+  for (byte i = 0; i < 7; i++) 
   {
-    digitalWrite (DE_MAX485, LOW);
-    digitalWrite (RE_MAX485, LOW);
-    for (byte i=0; i<7; i++)
-    {
-      values[i] = Serial.read();
-    }
+    values[i] = Serial.read();
   }
+
   return values[4];
 }
 
 byte KRead()
 {
-  digitalWrite (DE_MAX485, HIGH);
-  digitalWrite (RE_MAX485, HIGH);
-  delay (10);
-  if (Serial.write (kal, sizeof (kal)) == 8);
+  Serial.flush();
+  digitalWrite(DE_MAX485, HIGH);
+  digitalWrite(RE_MAX485, HIGH);
+  delay(10);
+  for (uint8_t i = 0; i < sizeof(kal); i++) Serial.write(kal[i]);
+
+  Serial.flush();
+  digitalWrite(DE_MAX485, LOW);
+  digitalWrite(RE_MAX485, LOW);
+  delay(500);
+  for (byte i = 0; i < 7; i++) 
   {
-    digitalWrite (DE_MAX485, LOW);
-    digitalWrite (RE_MAX485, LOW);
-    for (byte i=0; i<7; i++)
-    {
-      values[i] = Serial.read();
-    }
+    values[i] = Serial.read();
   }
+
   return values[4];
 }
 
 void OLEDPrint()
 {
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.print(areaName);
+  display.setCursor(0, 10);
+  display.print("N : ");
+  display.setCursor(0, 20);
+  display.print("P : ");
+  display.setCursor(0, 30);
+  display.print("K : ");
+  display.setCursor(0, 40);
+  display.print("pH : ");
+  display.setCursor(0, 50);
+  display.print("Soil : ");
+
+  display.setCursor(40, 10);
+  display.print(NValue);
+  display.setCursor(40, 20);
+  display.print(PValue);
+  display.setCursor(40, 30);
+  display.print(KValue);
+  display.setCursor(40, 40);
+  display.print(pHValue);
+  display.setCursor(40, 50);
+  display.print(moistPercent);
+
+  display.display();
+
 /*
   * Dynamic Variables:
   * moistPercent
@@ -261,5 +341,5 @@ void OLEDPrint()
   * NValue
   * PValue
   * KValue
- */
+*/
 }

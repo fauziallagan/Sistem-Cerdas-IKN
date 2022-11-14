@@ -9,6 +9,42 @@ html {
   display: contents;
 }
 
+/* 
+.container-fluid {
+  margin-top: 20px;
+  border: 10px solid #75767727;
+  box-shadow: 2px 2px 12px 1px rgba(140, 140, 140, .5);
+} */
+
+
+.body-lahan1 {
+  background-color: rgba(190, 48, 190, 0.658);
+
+}
+
+.body-lahan2 {
+  background-color: rgba(11, 18, 78, 0.288);
+}
+
+.body-lahan3 {
+  background-color: rgba(123, 148, 13, 0.288);
+
+}
+
+.body-lahan4 {
+  background-color: rgba(214, 228, 22, 0.432);
+
+}
+
+/* uji coba */
+input {
+  border: none;
+  text-align: center;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-weight: bolder;
+
+}
+
 .judul-proyek {
   font-size: 200%;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
@@ -30,6 +66,7 @@ html {
   align-items: center; */
 
 }
+
 
 .navbar-expand-lg {
   background-color: rgb(66, 35, 95);
@@ -60,18 +97,46 @@ html {
 
 .nav-item {
   align-items: center;
+  transition: transform .2s;
 }
 
-canvas {
-  margin-left: 5%;
+.info-des {
+  text-align: justify;
+  margin-top: 1%;
+}
+
+.head-des {
+  font-weight: bolder;
+}
+
+.head-artikel {
+  padding-top: 4%;
+  text-align: center;
+  font-weight: bolder;
+  font-family: sans-serif;
+
+}
+
+.artikel-conten {
+  text-align: justify;
+  padding-bottom: 4%;
 }
 
 footer {
-  margin-top: 10%;
-  background-color: #034078;
-  /* position: fixed; */
-  align-items: center;
-  padding-bottom: 1%;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgb(1, 46, 131);
+  color: white;
+  text-align: center;
+
+}
+
+.active {
+  background-color: rgb(76, 0, 255);
+  border-radius: 10%;
+  height: 80%;
 
 }
 
@@ -92,11 +157,29 @@ body {
 }
 
 .card {
-  background-color: white;
+  transition: transform .2s;
+  /* Animation */
   box-shadow: 2px 2px 12px 1px rgba(140, 140, 140, .5);
   padding-bottom: 2%;
-  margin-top: 10%;
+  margin-top: 3%;
   align-items: center;
+}
+
+.card-info {
+  transition: transform .2s;
+  /* Animation */
+  box-shadow: 2px 2px 12px 1px rgba(140, 140, 140, .5);
+  padding-bottom: 1%;
+  margin-top: 1%;
+  align-items: center;
+}
+
+.card:hover {
+  transform: scale(1.1);
+}
+
+.card-info:hover {
+  transform: scale(1.1);
 }
 
 .card-title {
@@ -106,7 +189,18 @@ body {
   color: #034078
 }
 
-/* Mobile */
+.nav-item:hover {
+  background-color: rgb(76, 0, 255);
+  transition: cubic-bezier(0.165, 0.84, 0.44, 1);
+  transform: scale(1.2);
+  border-radius: 10%;
+  height: 90%;
+
+}
+
+
+
+/* Mobile ONLY */
 
 @media only screen and (max-width: 600px) {
   .card-grid-1 {
@@ -124,16 +218,38 @@ body {
     color: #034078
   }
 
+  .judul-brand {
+    font-size: 50%;
+    color: white;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  }
+
   .card {
     margin-top: 10%;
     background-color: transparent;
     padding-bottom: 5%;
   }
 
+  .no-space {
+    width: 15%;
+    height: 15%;
+  }
+
   .space {
     margin-left: 1%;
-    width: 20%;
-    height: 20%;
+    width: 15%;
+    height: 15%;
     /* opacity: 10%; */
+  }
+
+  footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgb(1, 46, 131);
+    color: white;
+    text-align: center;
+
   }
 }

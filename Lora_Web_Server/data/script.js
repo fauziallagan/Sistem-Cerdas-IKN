@@ -3,41 +3,41 @@ window.addEventListener('load', getReadings);
 let widthGauge = 170;
 let heightGauge = 170;
 let majorTickVarNatrium = ["0",
-  "10",
-  "20",
-  "30",
-  "40",
+  "25",
   "50",
-  "60",
-  "70",
-  "80",
-  "90",
-  "100"
+  "75",
+  "100",
+  "125",
+  "150",
+  "175",
+  "200",
+  "225",
+  "255"
 ]
 let majorTickPotasium = [
   "0",
-  "10",
-  "20",
-  "30",
-  "40",
+  "25",
   "50",
-  "60",
-  "70",
-  "80",
-  "90",
-  "100"
+  "75",
+  "100",
+  "125",
+  "150",
+  "175",
+  "200",
+  "225",
+  "255"
 ]
 let majorTickKalium = ["0",
-  "10",
-  "20",
-  "30",
-  "40",
+  "25",
   "50",
-  "60",
-  "70",
-  "80",
-  "90",
-  "100"
+  "75",
+  "100",
+  "125",
+  "150",
+  "175",
+  "200",
+  "225",
+  "255"
 ]
 let majorTickpH = ["0",
   "1",
@@ -68,94 +68,109 @@ let majorTickSoil = ["0",
   "100"
 ]
 let heightNatrium = [{
-    "from": 80,
-    "to": 100,
-    "color": "#f20202"
+    "from": 0,
+    "to": 45,
+    "color": "#D4DBA1"
   },
   {
-    "from": 0,
-    "to": 20,
-    "color": "#dbd7cc"
+    "from": 45,
+    "to": 90,
+    "color": "#CFDE64"
   }, {
-    "from": 60,
-    "to": 80,
-    "color": "#f2ee02"
+    "from": 90,
+    "to": 140,
+    "color": "#D0E43B"
   }, {
-    "from": 20,
-    "to": 60,
-    "color": "#02f262"
+    "from": 140,
+    "to": 255,
+    "color": "#E0FF00"
   }
 ]
 let heightPotasium = [{
-    "from": 80,
-    "to": 100,
+    "from": 150,
+    "to": 255,
     "color": "#f20202"
   },
   {
     "from": 0,
-    "to": 20,
+    "to": 45,
     "color": "#dbd7cc"
   }, {
-    "from": 60,
-    "to": 80,
+    "from": 45,
+    "to": 90,
     "color": "#f2ee02"
   }, {
-    "from": 20,
-    "to": 60,
+    "from": 90,
+    "to": 150,
     "color": "#02f262"
   }
 ]
 let heightKalium = [{
-    "from": 80,
-    "to": 100,
+    "from": 150,
+    "to": 255,
     "color": "#f20202"
   },
   {
     "from": 0,
-    "to": 20,
+    "to": 45,
     "color": "#dbd7cc"
   }, {
-    "from": 60,
-    "to": 80,
+    "from": 45,
+    "to": 90,
     "color": "#f2ee02"
   }, {
-    "from": 20,
-    "to": 60,
+    "from": 90,
+    "to": 150,
     "color": "#02f262"
   }
 ]
 let heightpH = [{
     "from": 0,
     "to": 2,
-    "color": "#f20202"
+    "color": "#E62300"
   },
   {
     "from": 2,
     "to": 4,
-    "color": "#e54242"
+    "color": "#DE4B31"
   }, {
-    "from": 7,
+    "from": 4,
+    "to": 6,
+    "color": "#DB6B57"
+  },
+  {
+    "from": 6,
+    "to": 8,
+    "color": "#A5EA0F"
+  },
+  {
+    "from": 8,
+    "to": 10,
+    "color": "#9AD321"
+  },
+  {
+    "from": 10,
     "to": 14,
-    "color": "#f2ee02"
+    "color": "#3585DE"
   }
 ]
 let heightSoil = [{
-    "from": 80,
-    "to": 100,
-    "color": "#f20202"
-  },
-  {
     "from": 0,
     "to": 20,
-    "color": "#dbd7cc"
+    "color": "#C2D2EE"
+  },
+  {
+    "from": 20,
+    "to": 60,
+    "color": "#8EB2EC"
   }, {
     "from": 60,
     "to": 80,
-    "color": "#f2ee02"
+    "color": "#5B92ED"
   }, {
-    "from": 20,
-    "to": 60,
-    "color": "#02f262"
+    "from": 80,
+    "to": 100,
+    "color": "#4082EE"
   }
 ]
 let colorPlatevar = "#fff";
@@ -168,7 +183,7 @@ var natriumLahan1Gauge = new RadialGauge({
   height: heightGauge,
   units: "ppm",
   minValue: 0,
-  maxValue: 100,
+  maxValue: 255,
   colorValueBoxRect: "#049faa",
   colorValueBoxRectEnd: "#049faa",
   colorValueBoxBackground: "#f1fbfc",
@@ -198,7 +213,7 @@ var potasiumLahan1Gauge = new RadialGauge({
   height: heightGauge,
   units: "ppm",
   minValue: 0,
-  maxValue: 100,
+  maxValue: 255,
   colorValueBoxRect: "#049faa",
   colorValueBoxRectEnd: "#049faa",
   colorValueBoxBackground: "#f1fbfc",
@@ -228,7 +243,7 @@ var kaliumLahan1Gauge = new RadialGauge({
   height: heightGauge,
   units: "ppm ",
   minValue: 0,
-  maxValue: 100,
+  maxValue: 255,
   colorValueBoxRect: "#049faa",
   colorValueBoxRectEnd: "#049faa",
   colorValueBoxBackground: "#f1fbfc",
@@ -335,11 +350,11 @@ function getReadings() {
 
 
 
-      console.log(kelembabanLahan1Var);
-      console.log(natriumLahan1Var);
-      console.log(potasiumLahan1Var);
-      console.log(kaliumLahan1Var);
-      console.log(phLahan1Var);
+      // console.log(kelembabanLahan1Var);
+      // console.log(natriumLahan1Var);
+      // console.log(potasiumLahan1Var);
+      // console.log(kaliumLahan1Var);
+      // console.log(phLahan1Var);
 
     }
   };
@@ -369,13 +384,36 @@ if (!!window.EventSource) {
   source.addEventListener('new_readings', function (e) {
     console.log("new_readings", e.data);
     var myObj = JSON.parse(e.data);
-    console.log(myObj);
+    // console.log(myObj);
 
     KelembabanLahan1Gauge.value = myObj.kelembabanLahan1FromArduino;
     kaliumLahan1Gauge.value = myObj.kaliumLahan1FromArduino;
     potasiumLahan1Gauge.value = myObj.potasiumLahan1FromArduino;
     natriumLahan1Gauge.value = myObj.natriumLahan1FromArduino;
     phLahan1Gauge.value = myObj.phLahan1FromArduino
+
+    let sensorKel = KelembabanLahan1Gauge.value;
+    console.log(sensorKel);
+
+    if (sensorKel >= 41 && sensorKel <= 100) {
+      document.getElementById("kelembaban").value = "Status : Basah";
+      console.log("basah");
+    } else {
+      document.getElementById("kelembaban").value = "Status : Kering";
+      console.log("Kering");
+    }
+    let sensorpH = phLahan1Gauge.value;
+    console.log(sensorpH);
+    if (sensorpH <= 6) {
+      document.getElementById("pH").value = "Status : Asam";
+      console.log("ASAM");
+    } else if (sensorpH >= 7 && sensorpH <= 9) {
+      document.getElementById("pH").value = "Status : Netral";
+      console.log("Netral");
+    } else if (sensorpH >= 10 && sensorpH <= 14) {
+      document.getElementById("pH").value = "Status : Basa";
+      console.log("Basa");
+    }
 
 
     // gaugeSoil_D.value = myObj.moisture;
