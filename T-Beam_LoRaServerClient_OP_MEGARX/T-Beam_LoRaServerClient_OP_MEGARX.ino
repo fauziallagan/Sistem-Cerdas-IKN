@@ -22,10 +22,10 @@ elapsedMillis areaRelayOutputMillis;
 elapsedMillis reservoirRelayOutputMillis;
 elapsedMillis RTCMillis;
 
-unsigned long readSensorInterval            = 3000; // 3000
-unsigned long areaRelayOutputInterval       = 2000; // 2000
-unsigned long reservoirRelayOutputInterval  = 2000; // 2000
-unsigned long RTCInterval                   = 10000; // 10000
+unsigned long readSensorInterval            = 3000; // 3000  3 detik
+unsigned long areaRelayOutputInterval       = 2000; // 2000 2 detik
+unsigned long reservoirRelayOutputInterval  = 2000; // 2000 2 detik
+unsigned long RTCInterval                   = 10000; // 10000 10 detik
 
 String value1, value2;
 String moist1, moist2, moist3, moist4;
@@ -84,7 +84,7 @@ void loop()
 
   }
 
-  if (readSensorMillis >= readSensorInterval)
+  if (readSensorMillis >= readSensorInterval) // 
   {
    reservoirRelayOutput();
     readSensorMillis = 0;
@@ -144,13 +144,13 @@ void areaRelayOutput (String moistValue, int relayArea, String area)
   Serial.print(area +" = ");
   Serial.println(moistPercentA);
 
-  if (moistPercentA >= 5 && moistPercentA <= 40)
+if (moistPercentA >= 1 && moistPercentA <= 40)
   {
     //Turn ON Designated Area Relay
     digitalWrite(relayArea, LOW); //high
-//    Serial.println(statusSensorsOn);
+    //    Serial.println(statusSensorsOn);
   }
-  else if (moistPercentA >= 70) {
+  else if (moistPercentA >= 41) {
     digitalWrite(relayArea, HIGH); // low
 
   }
