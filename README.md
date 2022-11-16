@@ -2,7 +2,7 @@
 Run Website -> 192.168.4.1
 
 # Schematic Lora Server
-![Logo](https://github.com/multimedia-dan-robotika/Sistem-Cerdas-IKN/blob/main/skematikSmartFarm%20updatefinal.png)
+![Logo](https://github.com/multimedia-dan-robotika/Sistem-Cerdas-IKN/blob/main/skematikServerFinal.png)
 
 # Schematic Lora Client
 ![Logo](https://github.com/multimedia-dan-robotika/Sistem-Cerdas-IKN/blob/main/schematicFinalloraSensors.PNG)
