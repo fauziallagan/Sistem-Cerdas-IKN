@@ -163,64 +163,6 @@ void loop()
   waitResponse();
 }
 
-void webserver(String kelembaban, String nameString, String n, String p,String k,String ph,String nama){
-  // fungsi untuk webserver
- if(WiFi.status()== WL_CONNECTED){
-    WiFiClient client;
-    HTTPClient http;
-    
-    // Your Domain name with URL path or IP address with path
-    http.begin(client, serverName);
-
-    // Specify content-type header
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    
-    // Prepare your HTTP POST request data
-    String httpRequestData = "api_key=" + apiKeyValue + "&nama=" + nama+"&sensor_kelembaban=" + kelembaban + "&sensor_n=" + n+ "&sensor_p=" + p+ "&sensor_k=" + k+ "&sensor_ph=" + ph;
-    Serial.print("httpReq uestData: ");
-    Serial.println(httpRequestData);
-    
-    // You can comment the httpRequestData variable above
-    // then, use the httpRequestData variable below (for testing purposes without the BME280 sensor)
-    //String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&location=Office&value1=24.75&value2=49.54&value3=1005.14";
-
-    // Send HTTP POST request
-    int httpResponseCode = http.POST(httpRequestData);
-     
-    // If you need an HTTP request with a content type: text/plain
-    //http.addHeader("Content-Type", "text/plain");
-    //int httpResponseCode = http.POST("Hello, World!");
-    
-    // If you need an HTTP request with a content type: application/json, use the following:
-    //http.addHeader("Content-Type", "application/json");
-    //int httpResponseCode = http.POST("{\"value1\":\"19\",\"value2\":\"67\",\"value3\":\"78\"}");
-        
-    if (httpResponseCode>0) {
-       if(httpResponseCode == 200){
-       
-      Serial.print("HTTP Response code: ");
-       Serial.print(httpResponseCode);
-       Serial.println(" OK");
-    }else{
-        Serial.print("HTTP Response code: ");
-      Serial.print("BAD");
-    }
-    }
-    else {
-      Serial.print("Error code: ");
-      Serial.println(httpResponseCode);
-    }
-    // Free resources
-    http.end();
-  }
-  else {
-    Serial.println("WiFi Disconnected");
-  }
-  digitalWrite(BUILTIN_LED, HIGH);
-  //Send an HTTP POST request every 30 seconds
-  delay(6000);  
-
-}
 void initLoRa()
 {
   SPI.begin(SCK, MISO, MOSI, SS);
@@ -337,8 +279,69 @@ void waitResponse()
       phos = LoRa.readStringUntil('#');
       kal = LoRa.readStringUntil('#');
       sensorSend(area, moist, pH, nitro, phos, kal);
+      webserver(moist,area, nitro,phos,kal,pH);
     }
   }
+}
+
+
+void webserver(String kelembaban, String nama, String n, String p,String k,String ph){
+  // fungsi untuk webserver
+ if(WiFi.status()== WL_CONNECTED){
+    WiFiClient client;
+    HTTPClient http;
+    
+    // Your Domain name with URL path or IP address with path
+    http.begin(client, serverName);
+
+    // Specify content-type header
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    
+    // Prepare your HTTP POST request data
+    String httpRequestData = "api_key=" + apiKeyValue + "&nama=" + nama+"&sensor_kelembaban=" + kelembaban + "&sensor_n=" + n+ "&sensor_p=" + p+ "&sensor_k=" + k+ "&sensor_ph=" + ph;
+    Serial.print("httpReq uestData: ");
+    Serial.println(httpRequestData);
+    
+    // You can comment the httpRequestData variable above
+    // then, use the httpRequestData variable below (for testing purposes without the BME280 sensor)
+    //String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&location=Office&value1=24.75&value2=49.54&value3=1005.14";
+
+    // Send HTTP POST request
+    int httpResponseCode = http.POST(httpRequestData);
+     
+    // If you need an HTTP request with a content type: text/plain
+    //http.addHeader("Content-Type", "text/plain");
+    //int httpResponseCode = http.POST("Hello, World!");
+    
+    // If you need an HTTP request with a content type: application/json, use the following:
+    //http.addHeader("Content-Type", "application/json");
+    //int httpResponseCode = http.POST("{\"value1\":\"19\",\"value2\":\"67\",\"value3\":\"78\"}");
+        
+    if (httpResponseCode>0) {
+       if(httpResponseCode == 200){
+       
+      Serial.print("HTTP Response code: ");
+       Serial.print(httpResponseCode);
+       Serial.println(" OK");
+    }else{
+        Serial.print("HTTP Response code: ");
+      Serial.print("BAD");
+    }
+    }
+    else {
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
+    }
+    // Free resources
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+  digitalWrite(BUILTIN_LED, HIGH);
+  //Send an HTTP POST request every 30 seconds
+  delay(6000);  
+
 }
 
 void sensorSend(String field, String sensor1, String sensor2, String sensor3, String sensor4, String sensor5)
