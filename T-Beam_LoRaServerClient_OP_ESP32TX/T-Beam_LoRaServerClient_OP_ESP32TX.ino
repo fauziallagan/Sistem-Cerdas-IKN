@@ -11,7 +11,6 @@
     LoRa Value 5 = PHOSPHORUS (MG/KG)
     LoRa Value 6 = KALIUM/POTASSIUM (MG/KG)
 */
-#include "SPIFFS.h"
 
 #include <SPI.h>
 #include <LoRa.h>
@@ -20,16 +19,9 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <WiFi.h>
-#include <WiFiAP.h>
 //#include <Hash.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include <Arduino_JSON.h>
+#include <HTTPClient.h>
 #include <elapsedMillis.h>
-
-IPAddress local_IP(192, 168, 4, 22);
-IPAddress gateway(192, 168, 4, 1);
-IPAddress subnet(255, 255, 255, 0);
 
 #define BAND 915E6
 #define SCK 5
@@ -45,8 +37,10 @@ IPAddress subnet(255, 255, 255, 0);
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-const char *ssid = "Smart Monitor";
-const char *password = "PPURSTUG";
+const char* ssid = "SET YOUR SSID";
+const char* password = "SET YOUR PASSWORD";
+const char* serverName= "http://192.168.1.x/post-sensor.php";
+String apiKeyValue = "SET YOUT API";
 
 elapsedMillis sendMillis;
 elapsedMillis OLEDPrintMillis;
@@ -74,9 +68,6 @@ String area2OLED = "Lahan 2 : ";
 String area3OLED = "Lahan 3 : ";
 String area4OLED = "Lahan 4 : ";
 
-AsyncWebServer server(80);
-AsyncEventSource events("/events");
-JSONVar readings;
 elapsedMillis requestMillis;
 elapsedMillis OLEDMillis;
 elapsedMillis serialMillis;
@@ -84,44 +75,6 @@ unsigned int requestInterval = 3000;
 unsigned int OLEDInterval = 1000;
 unsigned int serialInterval = 1500;
 
-void initFS()
-{
-  if (!SPIFFS.begin())
-  {
-    Serial.println("SPIFFS Gagal");
-  }
-
-  Serial.println("SPIFFS Sukses");
-}
-
-String getSensorReadings()
-{
-  readings["kelembabanLahan1FromArduino"] = String(moist1); // edited
-  readings["natriumLahan1FromArduino"] = String(nitro1);
-  readings["potasiumLahan1FromArduino"] = String(phos1);
-  readings["kaliumLahan1FromArduino"] = String(kal1);
-  readings["phLahan1FromArduino"] = String(pH1);
-  // section 2
-  readings["kelembabanLahan2FromArduino"] = String(moist2); // edited
-  readings["natriumLahan2FromArduino"] = String(nitro2);
-  readings["potasiumLahan2FromArduino"] = String(phos2);
-  readings["kaliumLahan2FromArduino"] = String(kal2);
-  readings["phLahan2FromArduino"] = String(pH2);
-  // Section 3
-  readings["kelembabanLahan3FromArduino"] = String(moist3); // edited
-  readings["natriumLahan3FromArduino"] = String(nitro3);
-  readings["potasiumLahan3FromArduino"] = String(phos3);
-  readings["kaliumLahan3FromArduino"] = String(kal3);
-  readings["phLahan3FromArduino"] = String(pH3);
-  // section 4
-  readings["kelembabanLahan4FromArduino"] = String(moist4); // edited
-  readings["natriumLahan4FromArduino"] = String(nitro4);
-  readings["potasiumLahan4FromArduino"] = String(phos4);
-  readings["kaliumLahan4FromArduino"] = String(kal4);
-  readings["phLahan4FromArduino"] = String(pH4);
-  String jsonString = JSON.stringify(readings);
-  return jsonString;
-}
 
 void setup()
 {
@@ -130,6 +83,19 @@ void setup()
   digitalWrite(OLED_RST, LOW);
   delay(20);
   digitalWrite(OLED_RST, HIGH);
+
+// set connection wifi
+ WiFi.begin(ssid, password);
+  Serial.println("Connecting");
+  while(WiFi.status() != WL_CONNECTED) { 
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
+pinMode(BUILTIN_LED, OUTPUT);  
+
 
   Wire.begin(OLED_SDA, OLED_SCL);
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3c, false, false))
@@ -149,38 +115,9 @@ void setup()
       ;
   }
   Serial.println("LoRa Initializing OK!");
-  if (!WiFi.config(local_IP, gateway, subnet))
-  {
-    Serial.println("STA Failed to configure");
-  }
-  WiFi.softAP(ssid, password);
-  IPAddress IP = WiFi.softAPIP();
 
-  Serial.println(IP);
-  initFS();
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest * request)
-  {
-    request->send(SPIFFS, "/index.html", "text/html");
-  });
 
-  server.serveStatic("/", SPIFFS, "/");
-
-  server.on("/readings", HTTP_GET, [](AsyncWebServerRequest * request)
-  {
-    String json = getSensorReadings();
-    request -> send (200, "application/json", json);
-    json = String();
-  });
-
-  events.onConnect([](AsyncEventSourceClient * client)
-  {
-    client->send("Request -> ", NULL, millis(), 30000); // 1000 change
-  });
-
-  server.addHandler(&events);
-
-  server.begin();
 
   initLoRa();
   initOLED();
@@ -221,16 +158,69 @@ void loop()
 
     OLEDPrintMillis = 0;
   }
-  if (requestMillis >= requestInterval)
-  {
-    events.send("Success", NULL, 2000);
-    events.send(getSensorReadings().c_str(), "new_readings", 2000);
-    requestMillis = 0;
-  }
+
 
   waitResponse();
 }
 
+void webserver(String kelembaban, String nameString, String n, String p,String k,String ph,String nama){
+  // fungsi untuk webserver
+ if(WiFi.status()== WL_CONNECTED){
+    WiFiClient client;
+    HTTPClient http;
+    
+    // Your Domain name with URL path or IP address with path
+    http.begin(client, serverName);
+
+    // Specify content-type header
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    
+    // Prepare your HTTP POST request data
+    String httpRequestData = "api_key=" + apiKeyValue + "&nama=" + nama+"&sensor_kelembaban=" + kelembaban + "&sensor_n=" + n+ "&sensor_p=" + p+ "&sensor_k=" + k+ "&sensor_ph=" + ph;
+    Serial.print("httpReq uestData: ");
+    Serial.println(httpRequestData);
+    
+    // You can comment the httpRequestData variable above
+    // then, use the httpRequestData variable below (for testing purposes without the BME280 sensor)
+    //String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&location=Office&value1=24.75&value2=49.54&value3=1005.14";
+
+    // Send HTTP POST request
+    int httpResponseCode = http.POST(httpRequestData);
+     
+    // If you need an HTTP request with a content type: text/plain
+    //http.addHeader("Content-Type", "text/plain");
+    //int httpResponseCode = http.POST("Hello, World!");
+    
+    // If you need an HTTP request with a content type: application/json, use the following:
+    //http.addHeader("Content-Type", "application/json");
+    //int httpResponseCode = http.POST("{\"value1\":\"19\",\"value2\":\"67\",\"value3\":\"78\"}");
+        
+    if (httpResponseCode>0) {
+       if(httpResponseCode == 200){
+       
+      Serial.print("HTTP Response code: ");
+       Serial.print(httpResponseCode);
+       Serial.println(" OK");
+    }else{
+        Serial.print("HTTP Response code: ");
+      Serial.print("BAD");
+    }
+    }
+    else {
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
+    }
+    // Free resources
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+  digitalWrite(BUILTIN_LED, HIGH);
+  //Send an HTTP POST request every 30 seconds
+  delay(6000);  
+
+}
 void initLoRa()
 {
   SPI.begin(SCK, MISO, MOSI, SS);
